@@ -11,9 +11,6 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-
-#####Make sure you load any required packages.
-
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
@@ -30,6 +27,7 @@ library(plotly)
 library(DT)
 library(rsconnect)
 library(gt)
+library(shiny)
 
 ```
 
@@ -37,15 +35,18 @@ library(gt)
 
 load("mega_data_by_r_10.2022.rds")
 mega_data_by_r <- mega_data_by_r
-```
-
-# Data Table
-
-## Column {data-width = "1000000"}
-
-```{r}
-
-mega_data_by_r
 
 ```
+
+# FVA
+======
+
+```{r data_1, echo = FALSE}
+
+
+
+
+```
+
+
 
