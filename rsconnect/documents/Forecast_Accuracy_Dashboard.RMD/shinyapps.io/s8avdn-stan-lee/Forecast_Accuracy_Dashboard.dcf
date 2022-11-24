@@ -1,0 +1,13 @@
+name: Forecast_Accuracy_Dashboard
+title: Forecast_Accuracy_Dashboard
+username:
+account: s8avdn-stan-lee
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7721857
+bundleId: 6550198
+url: https://s8avdn-stan-lee.shinyapps.io/Forecast_Accuracy_Dashboard/
+when: 1669283443.33083
+lastSyncTime: 1669283443.33084
+asMultiple: FALSE
+asStatic: FALSE
