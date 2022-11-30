@@ -38,12 +38,24 @@ mega_data_by_r <- mega_data_by_r
 
 ```
 
-# FVA
+# Accy & Fcst Pivot (Lag)
 ======
 
 ```{r data_1, echo = FALSE}
+mega_data_by_r$adjusted_forecast_cases
 
+mega_data_by_r %>% 
+  dplyr::mutate(forecast_per = as.character(forecast_per)) %>% 
+  reshape2::dcast(lag ~ forecast_per, value.var = "adjusted_forecast_cases", sum) -> accy_fcst_pivot_lag
+  
 
+accy_fcst_pivot_lag[is.na(accy_fcst_pivot_lag)] <- 0
+accy_fcst_pivot_lag
+
+colnames(accy_fcst_pivot_lag) %>% 
+  data.frame() %>%
+  dplyr::rename(col = ".") %>% 
+  dplyr::slice(n = -1)
 
 
 ```
