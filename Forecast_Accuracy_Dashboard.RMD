@@ -1,33 +1,30 @@
 ---
-title: "Forecast Accuracy"
+title: "Forecast Accuracy Dashboard"
 runtime: shiny
 output:
-  flexdashboard::flex_dashboard: 
+  flexdashboard::flex_dashboard: null
   orientation: rows
   vertical_layout: fill
   source_code: embed
   theme: cosmo
-
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(magrittr)
-library(openxlsx)
-library(readxl)
-library(writexl)
 library(reshape2)
 library(skimr)
 library(janitor)
 library(lubridate)
-library(ggthemes)
 library(plotly)
 library(DT)
 library(rsconnect)
-library(gt)
+library(ggside)
 library(shiny)
+library(shinyWidgets)
+library(vroom)
 
 ```
 
@@ -38,42 +35,32 @@ mega_data_by_r <- mega_data_by_r
 
 ```
 
-# Accy & Fcst Pivot (Lag)
-======
 
-```{r data_1, echo = FALSE}
+
+
+# Data Table
+
+## Row {data-width = "1000"}
+
+```{r, echo=FALSE}
+options(shiny.maxRequestSize = 60*1024^2)
+
 mega_data_by_r %>% 
-  dplyr::mutate(forecast_per = as.character(forecast_per)) %>% 
-  reshape2::dcast(lag ~ forecast_per, value.var = "adjusted_forecast_cases", sum) -> accy_fcst_pivot_lag
-  
+  dplyr::group_by(product_category_name, forcasted_month) %>% 
+  dplyr::summarise(sum = sum(as_ordered_quantity)) -> test
 
-accy_fcst_pivot_lag[is.na(accy_fcst_pivot_lag)] <- 0
-accy_fcst_pivot_lag
+DT::datatable(test, 
+              extensions = "Buttons",
+              options = list(pageLength = 100, 
+                             scrollY= TRUE,
+                             dom = "Blfrtip",
+                             buttons = c("copy", "csv", "excel", "pdf"))) -> test_2
 
-colnames(accy_fcst_pivot_lag) %>% 
-  data.frame() %>%
-  dplyr::rename(col = ".") %>% 
-  dplyr::slice(n = -1) %>% 
-  tidyr::separate(col, c("year", "mon", "day"), sep = "-") %>% 
-  dplyr::mutate(mon = recode(mon, "01" = "Jan", "02" = "Feb", "03" = "Mar", "04" = "Apr", "05" = "May", "06" = "Jun",
-                             "07" = "Jul", "08" = "Aug", "09" = "Sep", "10" = "Oct", "11" = "Nov", "12" = "Dec")) %>% 
-  dplyr::mutate(col = paste0(mon, "-", year)) %>% 
-  dplyr::select(col) -> col
-
-lag <- "lag"
-lag %>% data.frame() %>% 
-  dplyr::rename(col = ".") -> lag
-
-rbind(lag, col) -> col
-col$col -> col
-
-colnames(accy_fcst_pivot_lag) <- col
-
-
-
-accy_fcst_pivot_lag
+test_2
 
 ```
+
+
 
 
 
