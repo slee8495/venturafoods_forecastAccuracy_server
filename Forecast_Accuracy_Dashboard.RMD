@@ -3,7 +3,7 @@ title: "Forecast Accuracy Dashboard"
 runtime: shiny
 output:
   flexdashboard::flex_dashboard: null
-  orientation: rows
+  orientation: columns
   vertical_layout: fill
   source_code: embed
   theme: cosmo
@@ -33,33 +33,61 @@ library(vroom)
 load("mega_data_by_r_10.2022.rds")
 mega_data_by_r <- mega_data_by_r
 
-```
-
-
-
-
-# Data Table
-
-## Row {data-width = "1000"}
-
-```{r, echo=FALSE}
 options(shiny.maxRequestSize = 60*1024^2)
 
-mega_data_by_r %>% 
-  dplyr::group_by(product_category_name, forcasted_month) %>% 
-  dplyr::summarise(sum = sum(as_ordered_quantity)) -> test
+```
 
-DT::datatable(test, 
-              extensions = "Buttons",
-              options = list(pageLength = 100, 
-                             scrollY= TRUE,
-                             dom = "Blfrtip",
-                             buttons = c("copy", "csv", "excel", "pdf"))) -> test_2
 
-test_2
+
+
+# Accy & Fcst Pivot (Lag)
+
+Inputs {.sidebar data-width=500}
+-----------------------------------------------------------------------
+
+```{r, echo = FALSE}
+product_platform <- unique(sort(mega_data_by_r$product_platform_name))
+pickerInput(inputId = "product_platform", label = "Product Platform", choices = product_platform,
+                    options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = product_platform)
+
+product_group <- unique(sort(mega_data_by_r$product_group_code))
+pickerInput(inputId = "product_group", label = "Product Group", choices = product_group,
+                    options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = product_group)
+
+sku <- unique(sort(mega_data_by_r$product_label_sku_code))
+pickerInput(inputId = "sku", label = "SKU", choices = sku,
+                    options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = sku)
+
+
+label <- unique(sort(mega_data_by_r$label))
+pickerInput(inputId = "label", label = "Label", choices = label,
+                    options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = label)
+
+
+campus <- unique(sort(mega_data_by_r$product_manufacturing_location_name))
+pickerInput(inputId = "campus", label = "Campus", choices = campus,
+                    options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = campus)
+
+
 
 ```
 
+
+
+Column
+-----------------------------------------------------------------------
+
+```{r, echo=FALSE}
+
+mega_data_by_r %>% 
+  dplyr::group_by(segmentation_id) %>% 
+  dplyr::summarise(mean = mean(wgtd_error_actual)) -> test1
+
+
+test1
+
+
+```
 
 
 
