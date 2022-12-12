@@ -79,12 +79,24 @@ Column
 
 ```{r, echo=FALSE}
 
-mega_data_by_r %>% 
-  dplyr::group_by(segmentation_id) %>% 
-  dplyr::summarise(mean = mean(wgtd_error_actual)) -> test1
+reshape2::dcast(mega_data_by_r, lag ~ forecast_per , value.var = "adjusted_forecast_cases", sum) -> a
 
 
-test1
+renderDataTable({
+  
+  accy_fcst_pivot <- dplyr::filter(mega_data_by_r, product_platform_name == input$product_platform)
+  accy_fcst_pivot_2 <- dcast
+  
+  DT::datatable(accy_fcst_pivot,
+                extensions = "Buttons",
+                options = list(pageLengh = 100,
+                               scrollY = TRUE,
+                               dom = "Blfrtip",
+                               buttons = c("copy", "csv", "excel")))
+  
+})
+
+
 
 
 ```
