@@ -40,6 +40,7 @@ options(shiny.maxRequestSize = 60*1024^2)
 
 
 
+
 # Accy & Fcst Pivot (Lag)
 
 Inputs {.sidebar data-width=500}
@@ -68,6 +69,10 @@ campus <- unique(sort(mega_data_by_r$product_manufacturing_location_name))
 pickerInput(inputId = "campus", label = "Campus", choices = campus,
                     options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = campus)
 
+forecast_per <- unique(sort(mega_data_by_r$forecast_per))
+pickerInput(inputId = "forecast_per", label = "Forecast Per", choices = forecast_per,
+                    options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = forecast_per)
+
 
 
 ```
@@ -79,15 +84,19 @@ Column
 
 ```{r, echo=FALSE}
 
-reshape2::dcast(mega_data_by_r, lag ~ forecast_per , value.var = "adjusted_forecast_cases", sum) -> a
-
-
 renderDataTable({
   
-  accy_fcst_pivot <- dplyr::filter(mega_data_by_r, product_platform_name == input$product_platform)
-  accy_fcst_pivot_2 <- dcast
+  accy_fcst_pivot <-   dplyr::filter(mega_data_by_r, product_platform_name == input$product_platform |
+                                                     product_group_code == input$product_group |
+                                                     product_label_sku_code == input$sku | 
+                                                     label == input$label | 
+                                                     product_manufacturing_location_name == input$campus) 
   
-  DT::datatable(accy_fcst_pivot,
+  accy_fcst_pivot_2 <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "actual", sum)
+  
+  
+  
+  DT::datatable(accy_fcst_pivot_2,
                 extensions = "Buttons",
                 options = list(pageLengh = 100,
                                scrollY = TRUE,
