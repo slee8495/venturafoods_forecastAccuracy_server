@@ -47,49 +47,29 @@ Inputs {.sidebar data-width=500}
 -----------------------------------------------------------------------
 
 ```{r, echo = FALSE}
-# product_platform <- unique(sort(mega_data_by_r$product_platform_name))
-# pickerInput(inputId = "product_platform", label = "Product Platform", choices = product_platform,
-#                     options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = product_platform)
-# 
-# product_group <- unique(sort(mega_data_by_r$product_group_code))
-# pickerInput(inputId = "product_group", label = "Product Group", choices = product_group,
-#                     options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = product_group)
-# 
-# sku <- unique(sort(mega_data_by_r$product_label_sku_code))
-# pickerInput(inputId = "sku", label = "SKU", choices = sku,
-#                     options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = sku)
-# 
-# 
-# label <- unique(sort(mega_data_by_r$label))
-# pickerInput(inputId = "label", label = "Label", choices = label,
-#                     options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = label)
-# 
-# 
-# campus <- unique(sort(mega_data_by_r$product_manufacturing_location_name))
-# pickerInput(inputId = "campus", label = "Campus", choices = campus,
-#                     options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = campus)
-
 product_platform <- unique(sort(mega_data_by_r$product_platform_name))
-selectInput(inputId = "product_platform", label = "Product Platform", choices = product_platform,
-                  multiple = TRUE, width = 500, selected = product_platform)
+pickerInput(inputId = "product_platform", label = "Product Platform", choices = product_platform,
+                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = product_platform)
 
 product_group <- unique(sort(mega_data_by_r$product_group_code))
-selectInput(inputId = "product_group", label = "Product Group", choices = product_group,
-                    multiple = TRUE, width = 500, selected = product_group)
+pickerInput(inputId = "product_group", label = "Product Group", choices = product_group,
+                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = product_group)
 
 sku <- unique(sort(mega_data_by_r$product_label_sku_code))
-selectInput(inputId = "sku", label = "SKU", choices = sku,
-                    multiple = TRUE, width = 500, selected = sku)
+pickerInput(inputId = "sku", label = "SKU", choices = sku,
+                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = sku)
 
 
 label <- unique(sort(mega_data_by_r$label))
-selectInput(inputId = "label", label = "Label", choices = label,
-                    multiple = TRUE, width = 500, selected = label)
+pickerInput(inputId = "label", label = "Label", choices = label,
+                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = label)
 
 
 campus <- unique(sort(mega_data_by_r$product_manufacturing_location_name))
-selectInput(inputId = "campus", label = "Campus", choices = campus,
-                    multiple = TRUE, width = 500, selected = campus)
+pickerInput(inputId = "campus", label = "Campus", choices = campus,
+                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = campus)
+
+
 
 
 
