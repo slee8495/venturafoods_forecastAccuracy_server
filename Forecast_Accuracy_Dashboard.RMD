@@ -3,7 +3,7 @@ title: "Forecast Accuracy Dashboard"
 runtime: shiny
 output:
   flexdashboard::flex_dashboard: null
-  orientation: columns
+  orientation: rows
   vertical_layout: fill
   source_code: embed
   theme: cosmo
@@ -33,7 +33,7 @@ library(vroom)
 load("mega_data_by_r_10.2022.rds")
 mega_data_by_r <- mega_data_by_r
 
-options(shiny.maxRequestSize = 60*1024^2)
+options(shiny.maxRequestSize = 120*1024^2)
 
 ```
 
@@ -69,9 +69,6 @@ campus <- unique(sort(mega_data_by_r$product_manufacturing_location_name))
 pickerInput(inputId = "campus", label = "Campus", choices = campus,
                     options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = campus)
 
-forecast_per <- unique(sort(mega_data_by_r$forecast_per))
-pickerInput(inputId = "forecast_per", label = "Forecast Per", choices = forecast_per,
-                    options = list("actions-box" = TRUE), multiple = TRUE, width = 500, selected = forecast_per)
 
 
 
@@ -79,7 +76,7 @@ pickerInput(inputId = "forecast_per", label = "Forecast Per", choices = forecast
 
 
 
-Column
+Row
 -----------------------------------------------------------------------
 
 ```{r, echo=FALSE}
@@ -92,24 +89,43 @@ renderDataTable({
                                                      label == input$label | 
                                                      product_manufacturing_location_name == input$campus) 
   
-  accy_fcst_pivot_2 <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "actual", sum)
+  accy_fcst_pivot_a <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "adjusted_forecast_cases", sum) %>% 
+    dplyr::mutate(values = "Adjusted Forecasted Cases") %>% 
+    dplyr::relocate(lag, values) 
+    
+  
+  accy_fcst_pivot_b <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "actual", sum) %>%
+    dplyr::mutate(values = "Actual Cases") %>% 
+    dplyr::relocate(lag, values)
+  
+  accy_fcst_pivot_c <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "as_ordered_quantity", sum) %>% 
+    dplyr::mutate(values = "Final Ordered Qty Cases") %>% 
+    dplyr::relocate(lag, values) 
+  
+  accy_fcst_pivot_d <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "as_original_ordered_quantity", sum) %>% 
+    dplyr::mutate(values = "Original Ordered Qty Cases") %>% 
+    dplyr::relocate(lag, values)
   
   
+  
+  accy_fcst_pivot_2 <- rbind(accy_fcst_pivot_a, accy_fcst_pivot_b, accy_fcst_pivot_c, accy_fcst_pivot_d) %>% 
+    dplyr::arrange(desc(lag)) 
+   
   
   DT::datatable(accy_fcst_pivot_2,
                 extensions = "Buttons",
-                options = list(pageLengh = 100,
-                               scrollY = TRUE,
+                options = list(scrollY = TRUE,
                                dom = "Blfrtip",
                                buttons = c("copy", "csv", "excel")))
   
+  
+
+  
 })
-
-
 
 
 ```
 
 
-
+# Currently, I have a problem with filter... 
 
