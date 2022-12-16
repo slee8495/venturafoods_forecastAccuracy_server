@@ -3,7 +3,7 @@ title: "Forecast Accuracy Dashboard"
 runtime: shiny
 output:
   flexdashboard::flex_dashboard: null
-  orientation: rows
+  orientation: columns
   vertical_layout: fill
   source_code: embed
   theme: cosmo
@@ -43,31 +43,23 @@ options(shiny.maxRequestSize = 120*1024^2)
 
 # Accy & Fcst Pivot (Lag)
 
-Inputs {.sidebar data-width=500}
+Inputs {data-width=500}
 -----------------------------------------------------------------------
 
 ```{r, echo = FALSE}
 product_platform <- unique(sort(mega_data_by_r$product_platform_name))
 pickerInput(inputId = "product_platform", label = "Product Platform", choices = product_platform,
-                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = product_platform)
+                    options = pickerOptions(actionsBox = TRUE, liveSearch = TRUE), multiple = TRUE, width = 500, selected = product_platform)
 
-product_group <- unique(sort(mega_data_by_r$product_group_code))
-pickerInput(inputId = "product_group", label = "Product Group", choices = product_group,
-                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = product_group)
 
 sku <- unique(sort(mega_data_by_r$product_label_sku_code))
 pickerInput(inputId = "sku", label = "SKU", choices = sku,
-                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = sku)
-
-
-label <- unique(sort(mega_data_by_r$label))
-pickerInput(inputId = "label", label = "Label", choices = label,
-                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = label)
+                    options = pickerOptions(actionsBox = TRUE, liveSearch = TRUE), multiple = TRUE, width = 500, selected = sku)
 
 
 campus <- unique(sort(mega_data_by_r$product_manufacturing_location_name))
-pickerInput(inputId = "campus", label = "Campus", choices = campus,
-                    options = pickerOptions(actionsBox = TRUE), multiple = TRUE, width = 500, selected = campus)
+pickerInput(inputId = "campus", label = "MFG Location", choices = campus,
+                    options = pickerOptions(actionsBox = TRUE, liveSearch = TRUE), multiple = TRUE, width = 500, selected = campus)
 
 
 
@@ -77,33 +69,37 @@ pickerInput(inputId = "campus", label = "Campus", choices = campus,
 
 
 
-Row
+Column {data-width=500}
 -----------------------------------------------------------------------
+
+ 
 
 ```{r, echo=FALSE}
 
 renderDataTable({
   
-  accy_fcst_pivot <-   dplyr::filter(mega_data_by_r, product_platform_name == input$product_platform |
-                                                     product_group_code == input$product_group |
-                                                     product_label_sku_code == input$sku | 
-                                                     label == input$label | 
-                                                     product_manufacturing_location_name == input$campus) 
+  accy_fcst_pivot <-   dplyr::filter(mega_data_by_r, product_platform_name == input$product_platform) 
   
-  accy_fcst_pivot_a <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "adjusted_forecast_cases", sum) %>% 
+  accy_fcst_pivot_a <- 
+    reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "adjusted_forecast_cases", sum) %>% 
     dplyr::mutate(values = "Adjusted Forecasted Cases") %>% 
     dplyr::relocate(lag, values) 
     
   
-  accy_fcst_pivot_b <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "actual", sum) %>%
+  accy_fcst_pivot_b <- 
+    reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "actual", sum) %>%
     dplyr::mutate(values = "Actual Cases") %>% 
     dplyr::relocate(lag, values)
   
-  accy_fcst_pivot_c <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "as_ordered_quantity", sum) %>% 
+  
+  accy_fcst_pivot_c <- 
+    reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "as_ordered_quantity", sum) %>% 
     dplyr::mutate(values = "Final Ordered Qty Cases") %>% 
     dplyr::relocate(lag, values) 
   
-  accy_fcst_pivot_d <- reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "as_original_ordered_quantity", sum) %>% 
+  
+  accy_fcst_pivot_d <- 
+    reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "as_original_ordered_quantity", sum) %>% 
     dplyr::mutate(values = "Original Ordered Qty Cases") %>% 
     dplyr::relocate(lag, values)
   
@@ -116,8 +112,11 @@ renderDataTable({
   DT::datatable(accy_fcst_pivot_2,
                 extensions = "Buttons",
                 options = list(scrollY = TRUE,
+                               scrollX = TRUE,
                                dom = "Blfrtip",
-                               buttons = c("copy", "csv", "excel")))
+                               pageLength = 100,
+                               buttons = c("copy", "csv", "excel"))) %>% 
+    DT::formatCurrency(3:ncol(accy_fcst_pivot_2), currency = "", interval = 3, mark = ",", digits = 0)
   
   
 
@@ -128,5 +127,4 @@ renderDataTable({
 ```
 
 
-# Currently, I have a problem with filter... shiny provided app would work: find the best filter funtions. 
 
