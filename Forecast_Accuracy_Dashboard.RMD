@@ -76,9 +76,15 @@ Column {data-width=500}
 
 ```{r, echo=FALSE}
 
+accy_fcst_pivot <- reactive({
+  mega_data_by_r %>% filter(product_platform_name == input$product_platform, 
+                            product_label_sku_code == input$sku,
+                            product_manufacturing_location_name == input$campus)
+})
+
+
 renderDataTable({
   
-  accy_fcst_pivot <-   dplyr::filter(mega_data_by_r, product_platform_name == input$product_platform) 
   
   accy_fcst_pivot_a <- 
     reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "adjusted_forecast_cases", sum) %>% 
@@ -124,7 +130,10 @@ renderDataTable({
 })
 
 
+
 ```
 
 
-# Need to find out the way for filtering...
+# currently, i'm trying to solve filter problem with reactive.. 
+
+
