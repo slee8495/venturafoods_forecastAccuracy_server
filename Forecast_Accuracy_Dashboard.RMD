@@ -77,37 +77,53 @@ Column {data-width=500}
 ```{r, echo=FALSE}
 
 accy_fcst_pivot <- reactive({
-  filter(mega_data_by_r, 
-         product_platform_name == input$product_platform,
-         product_label_sku_code == input$sku,
-         product_manufacturing_location_name == input&campus)
+ mega_data_by_r %>% 
+    filter(product_platform_name == input$product_platform,
+           product_label_sku_code == input$sku,
+           product_manufacturing_location_name == input&campus)
 })
 
 
 renderDataTable({
   
   
-  accy_fcst_pivot_a <- 
-    reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "adjusted_forecast_cases", sum) %>% 
+  accy_fcst_pivot_a <- accy_fcst_pivot %>% 
+    dplyr::select(lag, forecast_per, adjusted_forecasted_cases) %>% 
+    dplyr::group_by(lag, forecast_per) %>%
+    dplyr::summarise(adjusted_forecasted_cases = sum(adjusted_forecasted_cases)) %>% 
+    tidyr::pivot_wider(names_from = forecast_per, values_from = adjusted_forecasted_cases) %>% 
     dplyr::mutate(values = "Adjusted Forecasted Cases") %>% 
-    dplyr::relocate(lag, values) 
+    data.frame() %>% 
+    dplyr::relocate(lag, values)
     
   
-  accy_fcst_pivot_b <- 
-    reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "actual", sum) %>%
-    dplyr::mutate(values = "Actual Cases") %>% 
+  accy_fcst_pivot_b <- accy_fcst_pivot %>% 
+    dplyr::select(lag, forecast_per, actual) %>% 
+    dplyr::group_by(lag, forecast_per) %>%
+    dplyr::summarise(actual = sum(actual)) %>% 
+    tidyr::pivot_wider(names_from = forecast_per, values_from = actual) %>% 
+    dplyr::mutate(values = "Actual") %>% 
+    data.frame() %>% 
     dplyr::relocate(lag, values)
   
   
-  accy_fcst_pivot_c <- 
-    reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "as_ordered_quantity", sum) %>% 
+  accy_fcst_pivot_c <- accy_fcst_pivot %>% 
+    dplyr::select(lag, forecast_per, as_ordered_quantity) %>% 
+    dplyr::group_by(lag, forecast_per) %>%
+    dplyr::summarise(as_ordered_quantity = sum(as_ordered_quantity)) %>% 
+    tidyr::pivot_wider(names_from = forecast_per, values_from = as_ordered_quantity) %>% 
     dplyr::mutate(values = "Final Ordered Qty Cases") %>% 
-    dplyr::relocate(lag, values) 
+    data.frame() %>% 
+    dplyr::relocate(lag, values)
   
   
-  accy_fcst_pivot_d <- 
-    reshape2::dcast(accy_fcst_pivot, lag ~ forecast_per, value.var = "as_original_ordered_quantity", sum) %>% 
+  accy_fcst_pivot_d <- accy_fcst_pivot %>% 
+    dplyr::select(lag, forecast_per, as_original_ordered_quantity) %>% 
+    dplyr::group_by(lag, forecast_per) %>%
+    dplyr::summarise(as_original_ordered_quantity = sum(as_original_ordered_quantity)) %>% 
+    tidyr::pivot_wider(names_from = forecast_per, values_from = as_original_ordered_quantity) %>% 
     dplyr::mutate(values = "Original Ordered Qty Cases") %>% 
+    data.frame() %>% 
     dplyr::relocate(lag, values)
   
   
@@ -136,23 +152,6 @@ renderDataTable({
 
 
 # currently, i'm trying to solve filter problem with reactive.. 
-
-```{r}
-reshape2::dcast(mega_data_by_r, lag ~ forecast_per, value.var = "actual", sum) %>%
-    dplyr::mutate(values = "Actual Cases") %>% 
-    dplyr::relocate(lag, values)
-
-
-mega_data_by_r %>% 
-  dplyr::select(lag, forecast_per, actual) %>% 
-  dplyr::group_by(lag, forecast_per) %>%
-  dplyr::summarise(actual = sum(actual)) %>% 
-  dplyr::ungroup() %>% 
-  data.frame() %>% 
-  tidyr::pivot_wider(names_from = forecast_per, values_from = actual) -> a
-
-```
-
 
 
 
