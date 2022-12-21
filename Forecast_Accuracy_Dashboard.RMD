@@ -77,9 +77,10 @@ Column {data-width=500}
 ```{r, echo=FALSE}
 
 accy_fcst_pivot <- reactive({
-  mega_data_by_r %>% filter(product_platform_name == input$product_platform, 
-                            product_label_sku_code == input$sku,
-                            product_manufacturing_location_name == input$campus)
+  filter(mega_data_by_r, 
+         product_platform_name == input$product_platform,
+         product_label_sku_code == input$sku,
+         product_manufacturing_location_name == input&campus)
 })
 
 
@@ -135,5 +136,23 @@ renderDataTable({
 
 
 # currently, i'm trying to solve filter problem with reactive.. 
+
+```{r}
+reshape2::dcast(mega_data_by_r, lag ~ forecast_per, value.var = "actual", sum) %>%
+    dplyr::mutate(values = "Actual Cases") %>% 
+    dplyr::relocate(lag, values)
+
+
+mega_data_by_r %>% 
+  dplyr::select(lag, forecast_per, actual) %>% 
+  dplyr::group_by(lag, forecast_per) %>%
+  dplyr::summarise(actual = sum(actual)) %>% 
+  dplyr::ungroup() %>% 
+  data.frame() %>% 
+  tidyr::pivot_wider(names_from = forecast_per, values_from = actual) -> a
+
+```
+
+
 
 
